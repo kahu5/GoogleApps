@@ -1,0 +1,69 @@
+function export_gcal_to_gsheet(){
+
+// Replace "examples@gmail.com" with your own Google Calendar E-mail adress.
+calendarName = "CAL NAME"
+var calendarID = "ID@resource.calendar.google.com";
+var cal = CalendarApp.getCalendarById(calendarID);
+// GENERAL CODE BELOW
+function formatDate(varDay,varFormat) {
+var d = new Date(),
+    minutes = d.getMinutes().toString().length == 1 ? '0'+d.getMinutes() : d.getMinutes(),
+    hours = d.getHours().toString().length == 1 ? '0'+d.getHours() : d.getHours(),
+    ampm = d.getHours() >= 12 ? 'pm' : 'am',
+    months = ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+	const today = months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+	const nextDay = new Date(today);
+    if (varFormat == 'std'){
+      return today;
+    } else {
+      return nextDay.setDate(nextDay.getDate() + varDay);
+    }
+}
+
+// Optional variations on getEvents
+// var events = cal.getEvents(new Date("January 3, 2014 00:00:00 CST"), new Date("January 14, 2014 23:59:59 CST"));
+var events = cal.getEvents(new Date(formatDate(0,'std')), new Date(formatDate(2)));
+  
+var sheet = SpreadsheetApp.getActiveSheet();
+// Uncomment this next line if you want to always clear the spreadsheet content before running - Note people could have added extra columns on the data though that would be lost
+ sheet.clearContents();  
+
+// Create a header record on the current spreadsheet in cells A1:N1 - Match the number of entries in the "header=" to the last parameter
+// of the getRange entry below
+var header = [["Calendar Address", "Event Title", "Event Description", "Event Location", "Event Start", "Event End", "Calculated Duration", "Visibility", "Date Created", "Last Updated", "MyStatus", "Created By", "All Day Event", "Recurring Event","Color","Attendees","Sync"]]
+var range = sheet.getRange(1,1,1,17);
+range.setValues(header);
+
+// Loop through all calendar events found and write them out starting on calulated ROW 2 (i+2)
+if(events.length>0){
+for (var i=0;i<events.length;i++) {
+var row=i+2;
+var myformula_placeholder = '';
+  
+// Matching the "header=" entry above, this is the detailed row entry "details=", and must match the number of entries of the GetRange entry below
+// NOTE: I've had problems with the getVisibility for some older events not having a value, so I've had do add in some NULL text to make sure it does not error
+var details=[[calendarID,events[i].getTitle(), '', events[i].getLocation(), events[i].getStartTime(), events[i].getEndTime(), myformula_placeholder, ('' + events[i].getVisibility()), events[i].getDateCreated(), events[i].getLastUpdated(), events[i].getMyStatus(), events[i].getCreators(), events[i].isAllDayEvent(), events[i].isRecurringEvent(), events[i].getColor(), events[i].getAttendees, formatDate(0,'std') ]];
+var range=sheet.getRange(row,1,1,17);
+if (details[[events[i].getTitle()]] == null){
+  details[[events[i].getTitle()]] = 'no event';
+}
+range.setValues(details);
+
+// Writing formulas from scripts requires that you write the formulas separate from non-formulas
+// Write the formula out for this specific row in column 7 to match the position of the field myformula_placeholder from above: foumula over columns F-E for time calc
+var cell=sheet.getRange(row,7);
+cell.setFormula('=(HOUR(F' +row+ ')+(MINUTE(F' +row+ ')/60))-(HOUR(E' +row+ ')+(MINUTE(E' +row+ ')/60))');
+cell.setNumberFormat('.00');
+
+}
+} else{
+  var row=i+2;
+  var myformula_placeholder = '';
+  var eventDate = Utilities.formatDate(new Date(), "GMT+5", "MM/dd/yyyy 0:00");
+  var details=[[calendarID,'NO EVENTS', 'nodesc', calendarName, eventDate, eventDate, '', 'DEFAULT', '', '', 'YES', 'helpdesk@back2back.org', '', '', '', '', formatDate(0,'std')]];
+//var range=sheet.getRange(row.activate());
+var range=sheet.getRange(2,1,1,17);
+  range.setValues(details);
+}
+}
