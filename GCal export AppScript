@@ -1,3 +1,4 @@
+// original credit to https://www.automatedstuff.com/tutorials/how-to-import-google-calendar-data-into-google-sheets-automatically/
 function export_gcal_to_gsheet(){
 
 // Replace "examples@gmail.com" with your own Google Calendar E-mail adress.
