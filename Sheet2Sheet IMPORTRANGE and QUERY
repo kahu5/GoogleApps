@@ -1,0 +1,4 @@
+=QUERY({
+IMPORTRANGE("https://docs.google.com/spreadsheets/d/ID1", "Sheet1!A2:Q15");
+IMPORTRANGE("https://docs.google.com/spreadsheets/d/ID2", "Sheet1!A2:Q15");
+IMPORTRANGE("https://docs.google.com/spreadsheets/d/ID3", "Sheet1!A2:Q15")}, "where Col1 IS NOT NULL",0)
