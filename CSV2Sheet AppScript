@@ -1,0 +1,17 @@
+/**
+ * 
+ *  Add "Drive" under Services before clicking Run
+ * 
+ */
+
+function importCSVFromGoogleDrive() {
+  var getFileName = DriveApp.getFileById('1PZ6-DXyh2Ojuh3JDEaPviGib3zwvordD').getName();
+console.log(getFileName)
+//console.log(Drive.Files.get('1P1WZ4KRBhyYgBpK7mmkZeyJmwSwvSVOO').title)
+//https://drive.google.com/drive/folders/1PJ6SMOIykmS9WLcDSiqKVhQ6AxxA2pWI
+  var file = DriveApp.getFilesByName(getFileName).next();
+  var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
+  var sheet = SpreadsheetApp.getActiveSheet();
+    sheet.clearContents(); 
+  sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+}
