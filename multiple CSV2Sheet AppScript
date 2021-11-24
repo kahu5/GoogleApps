@@ -1,27 +1,32 @@
 /**
  *  Import mulitple CSV hosted in Google Drive to specificly named sheets
  *  Add "Drive" under Services before clicking Run
- *  REPLACE "CSVx_ID" and "SHEETx_NAME" with the Google Drive file ID and Google Sheet names
+ *  REPLACE "FileX_ID" and "SheetX_name" with the Google Drive file ID and Google Sheet names
  */
 
-function importCSVFromGoogleDrive() {
-  var getFileName1 = DriveApp.getFileById('CSV1_ID').getName();
-console.log(getFileName1)
-  var file = DriveApp.getFilesByName(getFileName1).next();
-  var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
-  var sheet = SpreadsheetApp.getActive().getSheetByName('SHEET1_NAME')
-    sheet.clearContents(); 
-    console.log(getFileName1 + " wiped")
-  sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
-    console.log(getFileName1 + " import success")
+var File1_ID = "";
+var Sheet1_name = "";
+var File2_ID = "";
+var Sheet2_name = "";
 
-  var getFileName2 = DriveApp.getFileById('CSV2_ID').getName();
-console.log(getFileName2)
-  var file = DriveApp.getFilesByName(getFileName2).next();
+function importCSVFromGoogleDrive() {
+  var getFileName = DriveApp.getFileById(File1_ID).getName();
+  console.log("preparing to import..." + getFileName)
+  var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
-  var sheet = SpreadsheetApp.getActive().getSheetByName('SHEET2_NAME')
-    sheet.clearContents(); 
-    console.log(getFileName1 + " wiped")
+  var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet1_name)
+  sheet.clearContents(); 
+  console.log(Sheet1_name + " sheet wiped");
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
-    console.log(getFileName1 + " import success")
+  console.log(getFileName + " imported to " + Sheet1_name + " successfully")
+
+  var getFileName = DriveApp.getFileById(File2_ID).getName();
+  console.log("preparing to import..." + getFileName)
+  var file = DriveApp.getFilesByName(getFileName).next();
+  var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
+  var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet2_name)
+  sheet.clearContents(); 
+  console.log(Sheet2_name + " sheet wiped");
+  sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+  console.log(getFileName + " imported to " + Sheet2_name + " successfully")
 }
