@@ -1,7 +1,7 @@
 /**
- * 
+ *  Imports a CSV hosted in Google Drive to the active sheet
  *  Add "Drive" under Services before clicking Run
- * 
+ *  REPLACE "CSV1_ID" with the Google Drive file ID
  */
 
 function importCSVFromGoogleDrive() {
