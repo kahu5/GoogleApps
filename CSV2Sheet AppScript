@@ -5,9 +5,14 @@
  *  the function can then be run from the custom menu on the Sheet toolbar
  */
 
-var File_ID = "1Oy1viVDwW7WEUVgHH3iR3xrDBXgXDBR8";
+var File_ID = ""
 
 function importCSVFromGoogleDrive() {
+    if (!File_ID){
+      SpreadsheetApp.getUi() 
+     .alert('You do not have a File_ID, open Extensions->App Scripts to add this to the Code');
+     return;
+    } else {
   var getFileName = DriveApp.getFileById(File_ID).getName();
   console.log(getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
@@ -15,7 +20,9 @@ function importCSVFromGoogleDrive() {
   var sheet = SpreadsheetApp.getActiveSheet();
   sheet.clearContents(); 
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+  }
 }
+
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   // Or DocumentApp or FormApp.
