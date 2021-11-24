@@ -5,10 +5,8 @@
  */
 
 function importCSVFromGoogleDrive() {
-  var getFileName = DriveApp.getFileById('1PZ6-DXyh2Ojuh3JDEaPviGib3zwvordD').getName();
+  var getFileName = DriveApp.getFileById('CSV1_ID').getName();
 console.log(getFileName)
-//console.log(Drive.Files.get('1P1WZ4KRBhyYgBpK7mmkZeyJmwSwvSVOO').title)
-//https://drive.google.com/drive/folders/1PJ6SMOIykmS9WLcDSiqKVhQ6AxxA2pWI
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActiveSheet();
