@@ -2,6 +2,7 @@
  *  Import CSV hosted in Google Drive to active sheet
  *  Add "Drive" under Services before clicking Run
  *  REPLACE "File_ID" with the Google Drive file ID and Google Sheet names
+ *  the function can then be run from the custom menu on the Sheet toolbar
  */
 
 var File_ID = "1Oy1viVDwW7WEUVgHH3iR3xrDBXgXDBR8";
