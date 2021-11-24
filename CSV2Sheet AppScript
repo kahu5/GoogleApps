@@ -1,15 +1,24 @@
 /**
- *  Imports a CSV hosted in Google Drive to the active sheet
+ *  Import CSV hosted in Google Drive to active sheet
  *  Add "Drive" under Services before clicking Run
- *  REPLACE "CSV1_ID" with the Google Drive file ID
+ *  REPLACE "File_ID" with the Google Drive file ID and Google Sheet names
  */
 
+var File_ID = "1Oy1viVDwW7WEUVgHH3iR3xrDBXgXDBR8";
+
 function importCSVFromGoogleDrive() {
-  var getFileName = DriveApp.getFileById('CSV1_ID').getName();
-console.log(getFileName)
+  var getFileName = DriveApp.getFileById(File_ID).getName();
+  console.log(getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActiveSheet();
-    sheet.clearContents(); 
+  sheet.clearContents(); 
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+}
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  // Or DocumentApp or FormApp.
+  ui.createMenu('Import CSV')
+      .addItem('Run', 'importCSVFromGoogleDrive')
+      .addToUi();
 }
