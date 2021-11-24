@@ -1,0 +1,27 @@
+/**
+ * 
+ *  Add "Drive" under Services before clicking Run
+ * 
+ */
+
+function importCSVFromGoogleDrive() {
+  var getFileName1 = DriveApp.getFileById('CSV1_ID').getName();
+console.log(getFileName1)
+  var file = DriveApp.getFilesByName(getFileName1).next();
+  var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
+  var sheet = SpreadsheetApp.getActive().getSheetByName('SHEET1_NAME')
+    sheet.clearContents(); 
+    console.log(getFileName1 + " wiped")
+  sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+    console.log(getFileName1 + " import success")
+
+  var getFileName2 = DriveApp.getFileById('CSV2_ID').getName();
+console.log(getFileName2)
+  var file = DriveApp.getFilesByName(getFileName2).next();
+  var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
+  var sheet = SpreadsheetApp.getActive().getSheetByName('SHEET2_NAME')
+    sheet.clearContents(); 
+    console.log(getFileName1 + " wiped")
+  sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+    console.log(getFileName1 + " import success")
+}
