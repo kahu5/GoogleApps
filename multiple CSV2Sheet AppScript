@@ -1,7 +1,7 @@
 /**
- * 
+ *  Import mulitple CSV hosted in Google Drive to specificly named sheets
  *  Add "Drive" under Services before clicking Run
- * 
+ *  REPLACE "CSVx_ID" and "SHEETx_NAME" with the Google Drive file ID and Google Sheet names
  */
 
 function importCSVFromGoogleDrive() {
