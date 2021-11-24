@@ -11,22 +11,26 @@ var Sheet2_name = "";
 
 function importCSVFromGoogleDrive() {
   var getFileName = DriveApp.getFileById(File1_ID).getName();
-  console.log("preparing to import... " + getFileName)
+    console.log("preparing to import... " + getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet1_name)
+  //clears entire sheet data before importing for data sanitation
   sheet.clearContents(); 
-  console.log(Sheet1_name + " sheet wiped, please wait for import to complete...");
+    console.log(Sheet1_name + " sheet wiped, please wait for import to complete...");
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
-  console.log(getFileName + " imported to " + Sheet1_name + " successfully")
+    console.log(getFileName + " imported to " + Sheet1_name + " successfully")
 
   var getFileName = DriveApp.getFileById(File2_ID).getName();
-  console.log("preparing to import... " + getFileName)
+    console.log("preparing to import... " + getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet2_name)
-  sheet.clearContents(); 
-  console.log(Sheet2_name + " sheet wiped, please wait for import to complete...");
+  //allows for only a range of the sheet to be cleared before import
+  var range = sheet.getRange(1, 6);
+    range.clearFormat();
+    console.log(Sheet2_name + " range cleared")
+    console.log("please wait for import to complete...");
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
-  console.log(getFileName + " imported to " + Sheet2_name + " successfully")
+    console.log(getFileName + " imported to " + Sheet2_name + " successfully")
 }
