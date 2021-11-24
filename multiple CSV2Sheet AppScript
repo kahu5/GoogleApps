@@ -11,22 +11,22 @@ var Sheet2_name = "";
 
 function importCSVFromGoogleDrive() {
   var getFileName = DriveApp.getFileById(File1_ID).getName();
-  console.log("preparing to import..." + getFileName)
+  console.log("preparing to import... " + getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet1_name)
   sheet.clearContents(); 
-  console.log(Sheet1_name + " sheet wiped");
+  console.log(Sheet1_name + " sheet wiped, please wait for import to complete...");
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
   console.log(getFileName + " imported to " + Sheet1_name + " successfully")
 
   var getFileName = DriveApp.getFileById(File2_ID).getName();
-  console.log("preparing to import..." + getFileName)
+  console.log("preparing to import... " + getFileName)
   var file = DriveApp.getFilesByName(getFileName).next();
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
   var sheet = SpreadsheetApp.getActive().getSheetByName(Sheet2_name)
   sheet.clearContents(); 
-  console.log(Sheet2_name + " sheet wiped");
+  console.log(Sheet2_name + " sheet wiped, please wait for import to complete...");
   sheet.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
   console.log(getFileName + " imported to " + Sheet2_name + " successfully")
 }
