@@ -2,7 +2,7 @@
 function export_gcal_to_gsheet(){
 
 // Replace "examples@gmail.com" with your own Google Calendar E-mail adress.
-calendarName = "CAL NAME"
+var calendarName = "CAL NAME"
 var calendarID = "ID@resource.calendar.google.com";
 var cal = CalendarApp.getCalendarById(calendarID);
 // GENERAL CODE BELOW
