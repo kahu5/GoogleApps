@@ -1,8 +1,26 @@
-// original credit to https://www.automatedstuff.com/tutorials/how-to-import-google-calendar-data-into-google-sheets-automatically/
-function export_gcal_to_gsheet(){
+/** 
+ * original credit to https://www.automatedstuff.com/tutorials/how-to-import-google-calendar-data-into-google-sheets-automatically/
+*/
 
-// Replace "examples@gmail.com" with your own Google Calendar E-mail adress.
-var calendarName = "CAL NAME"
+// Creates a custom menu item for user to run
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu('Calendar')
+      .addItem('Check for Events', 'pumpCalenderToSheet')
+      .addItem("Open AppScript Code","openAppScript")
+      .addToUi();
+}
+
+// pulls AppScript project ID to load link back to here from custom menu item
+function openAppScript() {
+  var scriptID = ScriptApp.getScriptId();
+  openUrl( 'https://script.google.com/home/projects/' + scriptID + '/edit');
+}
+
+// Primary function
+// Replace "ID@resource.calendar.google.com" with your own Google Calendar ID
+function pumpCalenderToSheet(){
+var calendarName = "USA-2-Breakout Room 3 (6)"
 var calendarID = "ID@resource.calendar.google.com";
 var cal = CalendarApp.getCalendarById(calendarID);
 // GENERAL CODE BELOW
@@ -62,7 +80,7 @@ cell.setNumberFormat('.00');
   var row=i+2;
   var myformula_placeholder = '';
   var eventDate = Utilities.formatDate(new Date(), "GMT+5", "MM/dd/yyyy 0:00");
-  var details=[[calendarID,'NO EVENTS', 'nodesc', calendarName, eventDate, eventDate, '', 'DEFAULT', '', '', 'YES', 'helpdesk@back2back.org', '', '', '', '', formatDate(0,'std')]];
+  var details=[[calendarID,'NO EVENTS', 'nodesc', calendarName, eventDate, eventDate, '', 'DEFAULT', '', '', 'YES', ' ', '', '', '', '', formatDate(0,'std')]];
 //var range=sheet.getRange(row.activate());
 var range=sheet.getRange(2,1,1,17);
   range.setValues(details);
