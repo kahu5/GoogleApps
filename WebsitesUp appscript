@@ -52,6 +52,9 @@ function checkAppStatus(){
 
   var activeRow = 0;
 
+  var dateNow = new Date();
+  dateTime = Utilities.formatDate(dateNow, 'America/New_York', 'yyyy-MM-dd HH:mm:ss');
+
   //Loop through every retrieved row from the Source
   sourceData.shift();
   for (row in sourceData) {
@@ -60,41 +63,30 @@ function checkAppStatus(){
       //Save it ta a temporary variable
       var request = sourceData[row][0];
       //run simpleHTTP function
-      var tempvalue = [simpleHTTP(request), "success", new Date().toISOString()];
+      var tempvalue = [simpleHTTP(request), "success", dateTime];
       //then push that into the variables which holds all the new values to be returned
       targetValues.push(tempvalue);
     } else if (sourceData[row][3]) {
       //Save it ta a temporary variable
       var request = sourceData[row][0];
       //run networkCall function
-      var tempvalue = [networkCall(request), "", new Date().toISOString()];
+      var tempvalue = [networkCall(request), "", dateTime];
       //then push that into the variables which holds all the new values to be returned
       targetValues.push(tempvalue);
     } else if (sourceData[row][4]) {
       //Save it ta a temporary variable
       var request = sourceData[row][0];
       //run otherCall function
-      var tempvalue = [otherCall(request), "", new Date().toISOString()];
+      var tempvalue = [otherCall(request), "", dateTime];
       //then push that into the variables which holds all the new values to be returned
       targetValues.push(tempvalue);
     } else if (sourceData[row][5]) {
       //Save it ta a temporary variable
       var request = sourceData[row][0];
+      //run filemaker server inquiry function
       //run filemakerCall function
-      function serverQuery(URL) {
-        var response = UrlFetchApp.fetch(
-            URL + "/fmi/data/vLatest/productInfo",
-            {
-              method: "GET",
-              muteHttpExceptions: true,
-            }
-          );
-          var responseBody = response.getContentText()
-          var responseJson = JSON.parse(responseBody)
-          return responseJson.response.productInfo.version;
-        }
-      var serverInfo = serverQuery(sourceData[row][0]);
-      var tempvalue = [filemakerCall(request,sourceData[row][1]), serverInfo, new Date().toISOString()];
+      var filemakerResponse = filemakerCall(request,sourceData[row][1]);
+      var tempvalue = [filemakerResponse[0], "v." + filemakerResponse[2] + " " + filemakerResponse[1], dateTime];
       //then push that into the variables which holds all the new values to be returned
       targetValues.push(tempvalue);
     } else {
@@ -179,18 +171,30 @@ var response = UrlFetchApp.fetch(API_URL, options);
   var responseBody = response.getContentText()
   if (responseCode === 200) {
     var responseJson = JSON.parse(responseBody)
-    console.log(responseCode + response.getContentText());
+    //console.log(responseCode + response.getContentText());
     databaseList = responseJson.response.databases;
     function fileExists(name) {
     return databaseList.some(function(el) {
     return el.name === name;
       });
     }
-
-    console.log(fileExists(file));
+          function serverQuery(URL) {
+        var response = UrlFetchApp.fetch(
+            URL + "/fmi/data/vLatest/productInfo",
+            {
+              method: "GET",
+              muteHttpExceptions: true,
+            }
+          );
+          var responseBody = response.getContentText()
+          var responseJson = JSON.parse(responseBody)
+          return responseJson.response.productInfo.version;
+        }
+    var serverInfo = serverQuery(sourceData[row][0]);
+    //console.log(fileExists(file));
     //console.log("Databases: " + JSON.stringify(responseJson.response.databases));
-    var responseCode = fileExists(file);
-    return responseCode;
+    var responseCode2 = fileExists(file);
+    return [responseCode,responseCode2, serverInfo];
   } else {
     var responseCode = "400";
     return responseCode;
