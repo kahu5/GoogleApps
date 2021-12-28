@@ -1,0 +1,184 @@
+function onOpen() {
+  createCustomMenu();
+}
+
+function httpCareDBProdInfo() {
+  var FILE_URL = "https://care.back2back.org";
+  var payload = {"value": "key"}
+  var response = UrlFetchApp.fetch(
+            FILE_URL + "/fmi/data/vLatest/productInfo",
+            {
+              method: "GET",
+              muteHttpExceptions: true,
+            }
+          );
+  var responseBody = response.getContentText()
+  var responseJson = JSON.parse(responseBody)
+      //SpreadsheetApp.getUi().alert(response.getContentText());
+      console.log("Version: " + responseJson.response.productInfo.version);
+      SpreadsheetApp.getUi().alert("Version: " + responseJson.response.productInfo.version);
+}
+
+function httpCareDBAuth() {
+  var ui = SpreadsheetApp.getUi();
+  var requestUsername = ui.prompt("Please enter your usernamename");
+  var USERNAME = requestUsername.getResponseText();
+  var requestPassword = ui.prompt("Please enter your password");
+  var PASSWORD = requestPassword.getResponseText();
+
+var API_URL = 'https://care.back2back.org/fmi/data/vLatest/databases/CARE_DB_TRAINING/sessions';
+
+var authHeader = 'Basic ' + Utilities.base64Encode(USERNAME + ':' + PASSWORD);
+var options = {
+  headers: {Authorization: authHeader},
+  contentType: 'application/json',
+  method: "POST",
+  muteHttpExceptions: true,
+}
+// Include 'options' object in every request
+var response = UrlFetchApp.fetch(API_URL, options);
+
+  var responseCode = response.getResponseCode()
+  var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    var responseJson = JSON.parse(responseBody)
+    console.log(responseCode + response.getContentText());
+    //SpreadsheetApp.getUi().alert(responseCode + response.getContentText());
+    //SpreadsheetApp.getUi().alert("Auth: " + responseJson.response.token);
+    const authToken = responseJson.response.token;
+    console.log(authToken);
+  } else {
+    console.log(responseCode + response.getContentText());
+    SpreadsheetApp.getUi().alert("Request failed. Expected 200 got " + responseCode);
+  }
+}
+
+function httpCareDBfiles() {
+  var ui = SpreadsheetApp.getUi();
+  var requestUsername = ui.prompt("Please enter your usernamename");
+  var USERNAME = requestUsername.getResponseText();
+  var requestPassword = ui.prompt("Please enter your password");
+  var PASSWORD = requestPassword.getResponseText();
+
+var API_URL = 'https://care.back2back.org/fmi/data/vLatest/databases';
+var authHeader = 'Basic ' + Utilities.base64Encode(USERNAME + ':' + PASSWORD);
+var options = {
+  headers: {Authorization: authHeader},
+  contentType: 'application/json',
+  method: "GET",
+  muteHttpExceptions: true,
+}
+// Include 'options' object in every request
+var response = UrlFetchApp.fetch(API_URL, options);
+
+  var responseCode = response.getResponseCode()
+  var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    var responseJson = JSON.parse(responseBody)
+    console.log(responseCode + response.getContentText());
+    databaseList = responseJson.response.databases;
+    for (var name in databaseList) {
+      console.log(name + " -> " + databaseList[name]);
+    }
+    for (let [key, value] of Object.entries(databaseList[0])) {
+      console.log(`${key}: ${value}`);
+    }
+    for (const key of Object.keys(databaseList)) {
+    console.log(databaseList[key]);
+    }
+    for (const [key, value] of Object.entries(databaseList)) {
+    console.log(value);
+    }
+    console.log("Databases: " + JSON.stringify(responseJson.response.databases));
+    console.log( JSON.stringify( responseJson.response.databases ));
+    function fileExists(name) {
+    return databaseList.some(function(el) {
+    return el.name === name;
+      }); 
+    }
+    var fileCheck = fileExists("B2B_CARE_DB");
+    console.log(fileCheck);
+    SpreadsheetApp.getUi().alert(responseCode + response.getContentText());
+    //SpreadsheetApp.getUi().alert("Databases: " + responseJson.response.databases);
+  } else {
+    console.log(responseCode + response.getContentText());
+    SpreadsheetApp.getUi().alert("Request failed. Expected 200 got " + responseCode);
+  }
+}
+
+function checkDBfile() {
+  var ui = SpreadsheetApp.getUi();
+  var requestUsername = ui.prompt("Please enter your usernamename");
+  var USERNAME = requestUsername.getResponseText();
+  var requestPassword = ui.prompt("Please enter your password");
+  var PASSWORD = requestPassword.getResponseText();
+  var requestFile = ui.prompt("Please enter your password");
+  var DBFILE = requestFile.getResponseText();
+
+var API_URL = 'https://care.back2back.org/fmi/data/vLatest/databases';
+var authHeader = 'Basic ' + Utilities.base64Encode(USERNAME + ':' + PASSWORD);
+var options = {
+  headers: {Authorization: authHeader},
+  contentType: 'application/json',
+  method: "GET",
+  muteHttpExceptions: true,
+}
+// Include 'options' object in every request
+var response = UrlFetchApp.fetch(API_URL, options);
+
+  var responseCode = response.getResponseCode()
+  var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    var responseJson = JSON.parse(responseBody)
+    console.log(responseCode + response.getContentText());
+    databaseList = responseJson.response.databases;
+    function fileExists(name) {
+    return databaseList.some(function(el) {
+    return el.name === name;
+      }); 
+    }
+    console.log(fileExists(DBFILE));
+    //console.log("Databases: " + JSON.stringify(responseJson.response.databases));
+    //var responseCode = fileExists(DBFILE);
+    //return responseCode;
+    SpreadsheetApp.getUi().alert("Database " + DBFILE + " " + fileExists(DBFILE));
+  } else {
+    console.log(responseCode + response.getContentText());
+    SpreadsheetApp.getUi().alert("Request failed. Expected 200 got " + responseCode);
+  }
+}
+
+function openUrl(url){
+  var html = HtmlService.createHtmlOutput('<html><script>'
+  +'window.close = function(){window.setTimeout(function(){google.script.host.close()},9)};'
+  +'var a = document.createElement("a"); a.href="'+url+'"; a.target="_blank";'
+  +'if(document.createEvent){'
+  +'  var event=document.createEvent("MouseEvents");'
+  +'  if(navigator.userAgent.toLowerCase().indexOf("firefox")>-1){window.document.body.append(a)}'                          
+  +'  event.initEvent("click",true,true); a.dispatchEvent(event);'
+  +'}else{ a.click() }'
+  +'close();'
+  +'</script>'
+  // Offer URL as clickable link in case above code fails.
+  +'<body style="word-break:break-word;font-family:sans-serif;">Failed to open automatically. <a href="'+url+'" target="_blank" onclick="window.close()">Click here to proceed</a>.</body>'
+  +'<script>google.script.host.setHeight(40);google.script.host.setWidth(410)</script>'
+  +'</html>')
+  .setWidth( 90 ).setHeight( 1 );
+  SpreadsheetApp.getUi().showModalDialog( html, "Opening ..." );
+}
+
+function openAppScript() {
+  var scriptID = ScriptApp.getScriptId();
+  openUrl( 'https://script.google.com/home/projects/' + scriptID + '/edit');
+}
+
+function createCustomMenu() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu("CareDB functions")
+          .addItem("ProdInfo CareDB","httpCareDBProdInfo")
+          .addItem("Auth CareDB","httpCareDBAuth")
+          .addItem("files CareDB","httpCareDBfiles")
+          .addItem("check DB file","checkDBfile")
+          .addItem("Open AppScript Code","openAppScript")
+.addToUi();
+}
