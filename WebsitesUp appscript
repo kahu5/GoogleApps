@@ -190,7 +190,7 @@ var response = UrlFetchApp.fetch(API_URL, options);
           var responseJson = JSON.parse(responseBody)
           return responseJson.response.productInfo.version;
         }
-    var serverInfo = serverQuery(sourceData[row][0]);
+    var serverInfo = serverQuery(URL);
     //console.log(fileExists(file));
     //console.log("Databases: " + JSON.stringify(responseJson.response.databases));
     var responseCode2 = fileExists(file);
