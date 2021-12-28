@@ -1,0 +1,276 @@
+function onOpen() {
+  createCustomMenu()
+}
+
+//TEST
+function doIt(){
+  var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
+  var lastRow = activeSheet.getLastRow();
+  var lastCol = activeSheet.getLastColumn();
+  var targetValues = [];
+
+  var sourceSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
+  var lastSourceRow = sourceSheet.getLastRow();
+  var lastSourceCol = sourceSheet.getLastColumn();
+
+  var sourceRange = sourceSheet.getRange(1, 1, lastSourceRow, lastSourceCol);
+  var sourceData = sourceRange.getValues();
+
+  var activeRow = 0;
+
+  //Loop through every retrieved row from the Source
+  for (row in sourceData) {
+    //IF Column B in this row has 'blue', then work on it.
+    if (sourceData[row][0]) {
+      //Save it ta a temporary variable
+      var tempvalue = [sourceData[row][0], sourceData[row][2]];
+      //then push that into the variables which holds all the new values to be returned
+      targetValues.push(tempvalue);
+    } else {
+      var tempvalue = ["", sourceData[row][2]];
+      targetValues.push(tempvalue);
+    }
+  }
+
+  //Save the new range to the appropriate sheet starting at the last empty row
+  activeSheet.getRange(1, lastCol + 1 , targetValues.length, 2).setValues(targetValues);
+}
+
+function checkAppStatus(){
+  var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var range = activeSheet.getRange("H2:J20");
+  range.clearContent();
+  var lastRow = activeSheet.getLastRow();
+  var lastCol = activeSheet.getLastColumn();
+  var targetValues = [];
+
+  var sourceSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var lastSourceRow = sourceSheet.getLastRow();
+  var lastSourceCol = sourceSheet.getLastColumn();
+  var sourceRange = sourceSheet.getRange(1, 1, lastSourceRow, lastSourceCol);
+  var sourceData = sourceRange.getValues();
+
+  var activeRow = 0;
+
+  //Loop through every retrieved row from the Source
+  sourceData.shift();
+  for (row in sourceData) {
+    //IF Column B in this row is checked, then work on it.
+    if (sourceData[row][2]) {
+      //Save it ta a temporary variable
+      var request = sourceData[row][0];
+      //run simpleHTTP function
+      var tempvalue = [simpleHTTP(request), "success", new Date().toISOString()];
+      //then push that into the variables which holds all the new values to be returned
+      targetValues.push(tempvalue);
+    } else if (sourceData[row][3]) {
+      //Save it ta a temporary variable
+      var request = sourceData[row][0];
+      //run networkCall function
+      var tempvalue = [networkCall(request), "", new Date().toISOString()];
+      //then push that into the variables which holds all the new values to be returned
+      targetValues.push(tempvalue);
+    } else if (sourceData[row][4]) {
+      //Save it ta a temporary variable
+      var request = sourceData[row][0];
+      //run otherCall function
+      var tempvalue = [otherCall(request), "", new Date().toISOString()];
+      //then push that into the variables which holds all the new values to be returned
+      targetValues.push(tempvalue);
+    } else if (sourceData[row][5]) {
+      //Save it ta a temporary variable
+      var request = sourceData[row][0];
+      //run filemakerCall function
+      function serverQuery(URL) {
+        var response = UrlFetchApp.fetch(
+            URL + "/fmi/data/vLatest/productInfo",
+            {
+              method: "GET",
+              muteHttpExceptions: true,
+            }
+          );
+          var responseBody = response.getContentText()
+          var responseJson = JSON.parse(responseBody)
+          return responseJson.response.productInfo.version;
+        }
+      var serverInfo = serverQuery(sourceData[row][0]);
+      var tempvalue = [filemakerCall(request,sourceData[row][1]), serverInfo, new Date().toISOString()];
+      //then push that into the variables which holds all the new values to be returned
+      targetValues.push(tempvalue);
+    } else {
+      var tempvalue = ["", "", ""];
+      targetValues.push(tempvalue);
+    }
+  }
+
+  //Save the new range to the appropriate sheet starting at the last empty row
+  activeSheet.getRange(2, lastCol - 2 , targetValues.length, 3).setValues(targetValues);
+}
+
+function getAddresses() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  var sheetValue = sheet.getRange(2,1).getValue();
+  const d = new Date();
+  let month = d.getMonth()+1;
+  let day = d.getDate();
+  let year = d.getYear();
+  let nowDate = new Date().toISOString()
+
+  checkHTTP(sheetValue, nowDate);
+  }
+
+function simpleHTTP(URL) {
+  var payload = {"value": "key"}
+  var response = UrlFetchApp.fetch(
+            URL,
+            {
+              //method: "PUT",
+              //contentType: "application/json",
+              //payload: JSON.stringify(payload),
+              muteHttpExceptions: true,
+            }
+          );
+  var responseCode = response.getResponseCode()
+  // var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    return responseCode;
+  } 
+}
+
+function networkCall(IP) {
+  var payload = {"value": "key"}
+  var response = UrlFetchApp.fetch(
+            IP,
+            {
+              //method: "PUT",
+              //contentType: "application/json",
+              //payload: JSON.stringify(payload),
+              muteHttpExceptions: true,
+            }
+          );
+  var responseCode = response.getResponseCode()
+  // var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    return responseCode;
+  } 
+}
+
+function otherCall(IP) {
+    var responseCode = 400;
+    return responseCode;
+}
+
+function filemakerCall(URL,file) {
+var USERNAME = 'b2badmin';
+var PASSWORD = 'Holistic4Kids!';
+var API_URL = URL + '/fmi/data/vLatest/databases';
+var authHeader = 'Basic ' + Utilities.base64Encode(USERNAME + ':' + PASSWORD);
+var options = {
+  headers: {Authorization: authHeader},
+  contentType: 'application/json',
+  method: "GET",
+  muteHttpExceptions: true,
+}
+// Include 'options' object in every request
+var response = UrlFetchApp.fetch(API_URL, options);
+
+  var responseCode = response.getResponseCode()
+  var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    var responseJson = JSON.parse(responseBody)
+    console.log(responseCode + response.getContentText());
+    databaseList = responseJson.response.databases;
+    function fileExists(name) {
+    return databaseList.some(function(el) {
+    return el.name === name;
+      });
+    }
+
+    console.log(fileExists(file));
+    //console.log("Databases: " + JSON.stringify(responseJson.response.databases));
+    var responseCode = fileExists(file);
+    return responseCode;
+  } else {
+    var responseCode = "400";
+    return responseCode;
+  }
+}
+
+
+function checkHTTP(URL,timestamp) {
+  var payload = {"value": "key"}
+  var response = UrlFetchApp.fetch(
+            URL,
+            {
+              method: "PUT",
+              contentType: "application/json",
+              payload: JSON.stringify(payload),
+              muteHttpExceptions: true,
+            }
+          );
+  var responseCode = response.getResponseCode()
+  // var responseBody = response.getContentText()
+  if (responseCode === 200) {
+    // var responseJson = JSON.parse(responseBody)
+    // var fact = response.getContentText();
+    var sheet = SpreadsheetApp.getActiveSheet();
+    sheet.getRange(2,8).setValue(responseCode);
+    sheet.getRange(2,9).setValue(timestamp);
+    //  SpreadsheetApp.getUi().alert(responseCode)
+  } else {
+    //SpreadsheetApp.getUi().alert("Request failed. Expected 200 got " + responseCode);
+    var sheet = SpreadsheetApp.getActiveSheet();
+    sheet.getRange(2,8).setValue(responseCode);
+    sheet.getRange(2,9).setValue(timestamp);
+  }
+}
+
+function displayPrompt() {
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt("Please enter your name");
+  SpreadsheetApp.getUi().alert("Hi " + result.getResponseText())
+}
+
+function openUrl(url){
+  var html = HtmlService.createHtmlOutput('<html><script>'
+  +'window.close = function(){window.setTimeout(function(){google.script.host.close()},9)};'
+  +'var a = document.createElement("a"); a.href="'+url+'"; a.target="_blank";'
+  +'if(document.createEvent){'
+  +'  var event=document.createEvent("MouseEvents");'
+  +'  if(navigator.userAgent.toLowerCase().indexOf("firefox")>-1){window.document.body.append(a)}'                          
+  +'  event.initEvent("click",true,true); a.dispatchEvent(event);'
+  +'} else{ a.click() }'
+  +'close();'
+  +'</script>'
+  +'</html>')
+  .setWidth( 90 ).setHeight( 1 );
+  SpreadsheetApp.getUi().showModalDialog( html, "Opening ..." );
+}
+
+function openAppScript() {
+  var scriptID = ScriptApp.getScriptId();
+  openUrl( 'https://script.google.com/home/projects/' + scriptID + '/edit');
+}
+
+function testNew(){
+  showAnchor('Stackoverflow','http://stackoverflow.com/questions/tagged/google-apps-script');
+}
+
+function showAnchor(name,url) {
+  var html = '<html><body><a href="'+url+'" target="blank" onclick="google.script.host.close()">'+name+'</a></body></html>';
+  var ui = HtmlService.createHtmlOutput(html)
+  SpreadsheetApp.getUi().showModelessDialog(ui,"demo");
+}
+
+
+function createCustomMenu() {
+  var ui = SpreadsheetApp.getUi()
+  ui.createMenu("AppsUp")
+.addItem("call HTTP","getAddresses")
+.addItem("Test","doIt")
+.addItem("LatestScript","checkAppStatus")
+.addItem("Open AppScript Code","openAppScript")
+.addItem("Open Test","testNew")
+.addToUi()
+}
