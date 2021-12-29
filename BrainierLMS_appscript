@@ -1,0 +1,105 @@
+function onOpen() {
+  createCustomMenu();
+}
+
+function Brainier() {
+  
+	const COMPANY_ID = "COMPANY_ID";
+	const CUSTOMER_KEY = "CUSTOMER_KEY";
+  const API_URL = "https://example.com";
+		
+		// Declare variables to be used for API call.
+		var param = "";
+    var method  = "GET";
+		var protocol = "hmac";
+		var username = "LMSUSERNAME";
+		var restPath = "/rest/brainier/user/5";
+		var requestUrl = "https://customer.brainier.com".concat(restPath);
+		var dateNow = new Date();
+    dateTime = Utilities.formatDate(dateNow, 'Etc/GMT', 'yyyy-MM-dd HH:mm:ss');
+		var ElanDate = dateTime;
+		var APIClientIP = "0.0.0.0";
+
+		// Set up the message to be used for authentication
+		var baseMessage = method + "+" + restPath + "+" + dateTime.replaceAll("\\-| ", "") + "+" + username;
+		
+		// Hash the base message and store the resulting bytes.
+		var signature = Utilities.computeHmacSha256Signature(baseMessage, CUSTOMER_KEY);
+		
+		// Perform hexadecimal -> base64 conversion on the digest.
+
+    var digest = Utilities.newBlob(signature);
+    var digestProcessed = Utilities.base64Encode(digest.getBytes());
+
+		// Finally, build the authentication header.
+		var authenticationHeader = protocol + " " + username + ":[" + digestProcessed + "]"  + COMPANY_ID;
+		// Make API GET request.
+		//HttpGet request = new HttpGet(requestUrl);
+
+      var payload = {
+        "Authentication": authenticationHeader,
+        "Elan-Date": ElanDate,
+        "API-Client-IP": APIClientIP
+        }
+
+      var options = {
+        headers: {Authorization: authenticationHeader},
+        contentType: "application/json",
+        contentLength: param.length,
+        payload: JSON.stringify(payload),
+        method: "GET",
+        muteHttpExceptions: true,
+        }
+console.log("Payload: " + JSON.stringify(payload, null, 2));
+console.log("Options: " + JSON.stringify(options, null, 2));
+
+      // Include 'options' object in every request
+      var response = UrlFetchApp.fetch(API_URL, options);
+      var responseBody = response.getContentText()
+console.log("responseBody: " + responseBody);
+      //var responseJson = JSON.parse(responseBody)
+		SpreadsheetApp.getUi();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheets()[1];
+        sheet.clearContents(); 
+    var htmlOutput = HtmlService
+    .createHtmlOutput('<p>Response output above...</p>')
+    .setWidth(450)
+    .setHeight(200);
+		SpreadsheetApp.getUi().showModalDialog( htmlOutput, responseBody );
+    var cell = sheet.getRange("B2");
+    cell.setValue(authenticationHeader);
+    //sheet.getRange(1, 1, 1, 1).setValues(authenticationHeader);
+}
+
+function openUrl(url){
+  var html = HtmlService.createHtmlOutput('<html><script>'
+  +'window.close = function(){window.setTimeout(function(){google.script.host.close()},9)};'
+  +'var a = document.createElement("a"); a.href="'+url+'"; a.target="_blank";'
+  +'if(document.createEvent){'
+  +'  var event=document.createEvent("MouseEvents");'
+  +'  if(navigator.userAgent.toLowerCase().indexOf("firefox")>-1){window.document.body.append(a)}'                          
+  +'  event.initEvent("click",true,true); a.dispatchEvent(event);'
+  +'}else{ a.click() }'
+  +'close();'
+  +'</script>'
+  // Offer URL as clickable link in case above code fails.
+  +'<body style="word-break:break-word;font-family:sans-serif;">Failed to open automatically. <a href="'+url+'" target="_blank" onclick="window.close()">Click here to proceed</a>.</body>'
+  +'<script>google.script.host.setHeight(40);google.script.host.setWidth(410)</script>'
+  +'</html>')
+  .setWidth( 90 ).setHeight( 1 );
+  SpreadsheetApp.getUi().showModalDialog( html, "Opening ..." );
+}
+
+function openAppScript() {
+  var scriptID = ScriptApp.getScriptId();
+  openUrl( 'https://script.google.com/home/projects/' + scriptID + '/edit');
+}
+
+function createCustomMenu() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu("Brainier API methods")
+          .addItem("Brainier Auth", "Brainier")
+          .addItem("Open AppScript Code","openAppScript")
+.addToUi();
+}
