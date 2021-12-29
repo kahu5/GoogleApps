@@ -50,7 +50,6 @@ function Brainier() {
         method: "GET",
         muteHttpExceptions: true,
         }
-
 console.log("Payload: " + JSON.stringify(payload, null, 2));
 console.log("Options: " + JSON.stringify(options, null, 2));
 
