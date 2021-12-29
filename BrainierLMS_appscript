@@ -1,3 +1,7 @@
+/*
+* API functions for Brainier LMS platform to Google Sheets
+*/
+
 function onOpen() {
   createCustomMenu();
 }
